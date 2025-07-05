@@ -2,7 +2,7 @@ package petdatabaseassignmentv1;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-// This is the main class that runs the pet database program (Release 1)
+// This is the main class that runs the pet database program
 public class PetDatabaseAssignmentV1 {
     public static void main(String[] args) {
         System.out.println("Pet Database Program\n");
