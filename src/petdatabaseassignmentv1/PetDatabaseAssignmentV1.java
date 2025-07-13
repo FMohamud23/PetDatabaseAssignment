@@ -32,13 +32,19 @@ public class PetDatabaseAssignmentV1 {
                     petDB.addMorePets();
                     break;
                 case 3:
+                    petDB.searchPetsByName();
+                    break;
+                case 4:
+                    petDB.searchPetsByAge();
+                    break;
+                case 5:
                     System.out.println("Goodbye!");
                     break;
                 default:
-                    System.out.println("Invalid choice. Please enter a number from 1 to 3.");
+                    System.out.println("Invalid choice. Please enter a number from 1 to 5.");
             }
 
-        } while (choice != 3); // Keep running until user chooses to exit
+        } while (choice != 5); // Keep running until user chooses to exit
     }
 
     // This method shows the menu options to the user
@@ -46,7 +52,9 @@ public class PetDatabaseAssignmentV1 {
         System.out.println("What would you like to do?");
         System.out.println("1. View all pets");
         System.out.println("2. Add more pets");
-        System.out.println("3. Exit program");
+        System.out.println("3. Search pets by name");
+        System.out.println("4. Search pets by age");
+        System.out.println("5. Exit program");
         System.out.print("Your choice: ");
     }
 }
@@ -137,5 +145,67 @@ class PetDatabase {
         }
 
         System.out.println(count + " pets added.\n");
+    }
+
+    // Search pets by name
+    public void searchPetsByName() {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter name to search: ");
+        String nameToFind = sc.nextLine().trim();
+
+        boolean found = false;
+
+        System.out.println("\n+----------------------+");
+        System.out.printf("| %3s | %-10s | %3s |\n", "ID", "NAME", "AGE");
+        System.out.println("+----------------------+");
+
+        for (int i = 0; i < pets.size(); i++) {
+            Pet pet = pets.get(i);
+            if (pet.getName().equalsIgnoreCase(nameToFind)) {
+                System.out.printf("| %3d | %-10s | %3d |\n", i, pet.getName(), pet.getAge());
+                found = true;
+            }
+        }
+
+        System.out.println("+----------------------+");
+
+        if (!found) {
+            System.out.println("No pets with name \"" + nameToFind + "\" found.\n");
+        }
+    }
+
+    // Search pets by age
+    public void searchPetsByAge() {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter age to search: ");
+
+        int ageToFind;
+
+        try {
+            ageToFind = Integer.parseInt(sc.nextLine().trim());
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid age. Please enter a number.");
+            return;
+        }
+
+        boolean found = false;
+
+        System.out.println("\n+----------------------+");
+        System.out.printf("| %3s | %-10s | %3s |\n", "ID", "NAME", "AGE");
+        System.out.println("+----------------------+");
+
+        for (int i = 0; i < pets.size(); i++) {
+            Pet pet = pets.get(i);
+            if (pet.getAge() == ageToFind) {
+                System.out.printf("| %3d | %-10s | %3d |\n", i, pet.getName(), pet.getAge());
+                found = true;
+            }
+        }
+
+        System.out.println("+----------------------+");
+
+        if (!found) {
+            System.out.println("No pets with age " + ageToFind + " found.\n");
+        }
     }
 }
