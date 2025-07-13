@@ -1,0 +1,194 @@
+package petdatabaseassignment2v2;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+// Main class for the Pet Database Program
+public class PetDatabaseAssignment2V2 {
+    public static void main(String[] args) {
+        System.out.println("Pet Database Program.");
+
+        Scanner sc = new Scanner(System.in);
+        PetDatabase petDB = new PetDatabase();
+
+        petDB.loadFromFile(); // Load existing pets from file at startup
+
+        int choice;
+
+        // Main loop for menu interaction
+        do {
+            printMenu(); // Display menu options
+
+            // Read user input for menu choice and handle non-integer input
+            try {
+                choice = Integer.parseInt(sc.nextLine().trim());
+            } catch (NumberFormatException e) {
+                choice = -1; // Invalid input
+            }
+
+            // Handle user choices
+            switch (choice) {
+                case 1:
+                    petDB.viewAllPets(); // View all pets
+                    break;
+                case 2:
+                    petDB.addMorePets(); // Add new pets
+                    break;
+                case 3:
+                    petDB.removePet(); // Remove a pet
+                    break;
+                case 4:
+                    petDB.saveToFile(); // Save pets before exiting
+                    System.out.println("Goodbye!");
+                    break;
+                default:
+                    System.out.println("Invalid choice."); // Handle out-of-range or invalid input
+            }
+        } while (choice != 4); // Repeat until user exits
+    }
+
+    // Method to display menu options
+    public static void printMenu() {
+        System.out.println("What would you like to do?");
+        System.out.println("1) View all pets");
+        System.out.println("2) Add new pets");
+        System.out.println("3) Remove a pet");
+        System.out.println("4) Exit program");
+        System.out.print("Your choice: ");
+    }
+}
+
+// Class representing a Pet object with name and age
+class Pet {
+    private static int count = 0; // Static counter for assigning unique IDs (not shown to user)
+    private int id;
+    private String name;
+    private int age;
+
+    // Constructor for Pet with name and age
+    public Pet(String name, int age) {
+        this.id = count++;
+        this.name = name;
+        this.age = age;
+    }
+
+    // Getter methods for Pet fields
+    public int getId() { return id; }
+    public String getName() { return name; }
+    public int getAge() { return age; }
+}
+
+// Class to manage the pet database and perform all actions
+class PetDatabase {
+    private ArrayList<Pet> pets = new ArrayList<>(); // List to store Pet objects
+    private static final String FILE_NAME = "PetData.txt"; // Data file path
+
+    // Load pet data from file when program starts
+    public void loadFromFile() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.trim().split(" ");
+                if (parts.length == 2) {
+                    String name = parts[0];
+                    int age = Integer.parseInt(parts[1]);
+                    pets.add(new Pet(name, age));
+                }
+            }
+        } catch (IOException ignored) {
+            // Ignore errors like file not found on first run
+        }
+    }
+
+    // Save all pet data to file when program exits
+    public void saveToFile() {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(FILE_NAME))) {
+            for (Pet pet : pets) {
+                writer.println(pet.getName() + " " + pet.getAge());
+            }
+        } catch (IOException e) {
+            System.out.println("Error saving pets to file.");
+        }
+    }
+
+    // Display all pets in a formatted table
+    public void viewAllPets() {
+        System.out.println("+----------------------+");
+        System.out.printf("| %2s | %-10s | %3s |\n", "ID", "NAME", "AGE");
+        System.out.println("+----------------------+");
+
+        for (int i = 0; i < pets.size(); i++) {
+            Pet pet = pets.get(i);
+            System.out.printf("| %2d | %-10s | %3d |\n", i, pet.getName(), pet.getAge());
+        }
+
+        System.out.println("+----------------------+");
+        System.out.println(pets.size() + " rows in set.");
+    }
+
+    // Allow user to add pets until "done" or the database is full
+    public void addMorePets() {
+        Scanner sc = new Scanner(System.in);
+        int count = 0;
+
+        while (true) {
+            // Enforce a maximum of 5 pets
+            if (pets.size() >= 5) {
+                System.out.println("Error: Database is full.");
+                break;
+            }
+
+            System.out.print("add pet (name, age): ");
+            String input = sc.nextLine().trim();
+
+            if (input.equalsIgnoreCase("done")) break;
+
+            String[] parts = input.split(" ");
+            if (parts.length != 2) {
+                System.out.println("Error: " + input + " is not a valid input.");
+                continue;
+            }
+
+            try {
+                String name = parts[0];
+                int age = Integer.parseInt(parts[1]);
+
+                // Check age range validity
+                if (age < 1 || age > 20) {
+                    System.out.println("Error: " + age + " is not a valid age.");
+                    continue;
+                }
+
+                pets.add(new Pet(name, age)); // Add valid pet
+                count++;
+            } catch (NumberFormatException e) {
+                System.out.println("Error: " + parts[1] + " is not a valid age.");
+            }
+        }
+
+        System.out.println(count + " pets added.");
+    }
+
+    // Allow user to remove a pet by ID
+    public void removePet() {
+        viewAllPets(); // Display pets for reference
+
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter the pet ID to remove: ");
+        try {
+            int id = Integer.parseInt(sc.nextLine().trim());
+
+            // Validate ID exists in list
+            if (id < 0 || id >= pets.size()) {
+                System.out.println("Error: ID " + id + " does not exist.");
+                return;
+            }
+
+            Pet removedPet = pets.remove(id); // Remove and return removed pet
+            System.out.println(removedPet.getName() + " " + removedPet.getAge() + " is removed.");
+        } catch (NumberFormatException e) {
+            System.out.println("Error: Invalid ID.");
+        }
+    }
+}
