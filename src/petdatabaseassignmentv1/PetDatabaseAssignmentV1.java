@@ -4,26 +4,26 @@ import java.util.Scanner;
 
 // This is the main class that runs the pet database program (Release 1)
 public class PetDatabaseAssignmentV1 {
-    public static void main(String[] args) {
+   public static void main(String[] args) {
         System.out.println("Pet Database Program\n");
 
         Scanner sc = new Scanner(System.in);
-        PetDatabase petDB = new PetDatabase(); // Create the database object
+        PetDatabase petDB = new PetDatabase(); // Create a new pet database
 
         int choice;
 
-        // Main menu loop
+        // Main program loop to display menu and process user choices
         do {
-            printMenu(); // Show menu options
+            printMenu(); // Display the menu options
 
-            // Get user's choice
+            // Read user's choice with error handling for non-numeric input
             try {
                 choice = Integer.parseInt(sc.nextLine().trim());
             } catch (NumberFormatException e) {
                 choice = -1; // Invalid input
             }
 
-            // Perform action based on user's choice
+            // Handle user choice and call corresponding methods
             switch (choice) {
                 case 1:
                     petDB.viewAllPets();
@@ -32,48 +32,56 @@ public class PetDatabaseAssignmentV1 {
                     petDB.addMorePets();
                     break;
                 case 3:
-                    petDB.searchPetsByName();
+                    petDB.updatePet();
                     break;
                 case 4:
-                    petDB.searchPetsByAge();
+                    petDB.removePet();
                     break;
                 case 5:
+                    petDB.searchPetsByName();
+                    break;
+                case 6:
+                    petDB.searchPetsByAge();
+                    break;
+                case 7:
                     System.out.println("Goodbye!");
                     break;
                 default:
-                    System.out.println("Invalid choice. Please enter a number from 1 to 5.");
+                    System.out.println("Invalid choice. Please enter a number from 1 to 7.");
             }
 
-        } while (choice != 5); // Keep running until user chooses to exit
+        } while (choice != 7); // Loop until user chooses to exit
     }
 
-    // This method shows the menu options to the user
+    // Display menu options to the user
     public static void printMenu() {
         System.out.println("What would you like to do?");
         System.out.println("1. View all pets");
         System.out.println("2. Add more pets");
-        System.out.println("3. Search pets by name");
-        System.out.println("4. Search pets by age");
-        System.out.println("5. Exit program");
+        System.out.println("3. Update an existing pet");
+        System.out.println("4. Remove an existing pet");
+        System.out.println("5. Search pets by name");
+        System.out.println("6. Search pets by age");
+        System.out.println("7. Exit program");
         System.out.print("Your choice: ");
     }
 }
 
-// This class represents a single Pet with a name and age
+// Class representing a Pet with unique ID, name, and age
 class Pet {
-    private static int count = 0; // Used to give each pet a unique ID
+    private static int count = 0; // Static counter to assign unique IDs
     private int id;
     private String name;
     private int age;
 
-    // Constructor that sets the name and age, and assigns a unique ID
+    // Constructor assigns unique ID and sets name and age
     public Pet(String name, int age) {
         this.id = count++;
         this.name = name;
         this.age = age;
     }
 
-    // Getters and setters
+    // Getters and setters for fields
     public int getId() { return id; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
@@ -81,11 +89,11 @@ class Pet {
     public void setAge(int age) { this.age = age; }
 }
 
-// This class manages the list of pets and allows user to interact with them
+// Class that manages the collection of pets and user interactions
 class PetDatabase {
     private ArrayList<Pet> pets = new ArrayList<>();
 
-    // Show all pets in the list
+    // Display all pets in a table format
     public void viewAllPets() {
         if (pets.isEmpty()) {
             System.out.println("\nNo pets to display.\n");
@@ -105,7 +113,7 @@ class PetDatabase {
         System.out.println(pets.size() + " rows in set.\n");
     }
 
-    // Add new pets from user input
+    // Add multiple pets until user types "done"
     public void addMorePets() {
         Scanner sc = new Scanner(System.in);
         int count = 0;
@@ -117,7 +125,7 @@ class PetDatabase {
             String input = sc.nextLine().trim();
 
             if (input.equalsIgnoreCase("done")) {
-                break;
+                break; // Exit input loop
             }
 
             String[] parts = input.split(" ");
@@ -137,7 +145,7 @@ class PetDatabase {
                     continue;
                 }
 
-                pets.add(new Pet(name, age));
+                pets.add(new Pet(name, age)); // Add pet to list
                 count++;
             } catch (NumberFormatException e) {
                 System.out.println("Invalid age. Please enter a number.");
@@ -147,7 +155,88 @@ class PetDatabase {
         System.out.println(count + " pets added.\n");
     }
 
-    // Search pets by name
+    // Update an existing pet by ID
+    public void updatePet() {
+        viewAllPets(); // Show current pets first
+        if (pets.isEmpty()) {
+            return; // Nothing to update
+        }
+
+        Scanner sc = new Scanner(System.in);
+        int id;
+
+        // Prompt user for valid pet ID
+        while (true) {
+            System.out.print("Enter the pet ID to update: ");
+            try {
+                id = Integer.parseInt(sc.nextLine().trim());
+                if (id >= 0 && id < pets.size()) {
+                    break;
+                } else {
+                    System.out.println("Invalid ID.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Please enter a valid number.");
+            }
+        }
+
+        Pet pet = pets.get(id);
+
+        System.out.print("Enter new name and new age: ");
+        String[] parts = sc.nextLine().trim().split(" ");
+
+        if (parts.length != 2) {
+            System.out.println("Invalid input. Update cancelled.");
+            return;
+        }
+
+        try {
+            String newName = parts[0];
+            int newAge = Integer.parseInt(parts[1]);
+
+            String oldName = pet.getName();
+            int oldAge = pet.getAge();
+
+            pet.setName(newName);
+            pet.setAge(newAge);
+
+            System.out.println("\n" + oldName + " " + oldAge + " changed to " + newName + " " + newAge + "\n");
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid age. Update cancelled.");
+        }
+    }
+
+    // Remove a pet by ID
+    public void removePet() {
+        viewAllPets(); // Show current pets first
+        if (pets.isEmpty()) {
+            return; // Nothing to remove
+        }
+
+        Scanner sc = new Scanner(System.in);
+        int id;
+
+        // Prompt user for valid pet ID
+        while (true) {
+            System.out.print("Enter the pet ID to remove: ");
+            try {
+                id = Integer.parseInt(sc.nextLine().trim());
+                if (id >= 0 && id < pets.size()) {
+                    break;
+                } else {
+                    System.out.println("Invalid ID.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Please enter a valid number.");
+            }
+        }
+
+        Pet removedPet = pets.remove(id);
+        System.out.println("\n" + removedPet.getName() + " " + removedPet.getAge() + " is removed.\n");
+    }
+
+    // Search pets by name (case-insensitive)
     public void searchPetsByName() {
         Scanner sc = new Scanner(System.in);
         System.out.print("Enter name to search: ");
