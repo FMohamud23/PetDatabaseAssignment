@@ -4,7 +4,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-// Main class for the Pet Database Program
 public class PetDatabaseAssignment2V2 {
     public static void main(String[] args) {
         System.out.println("Pet Database Program.");
@@ -12,38 +11,39 @@ public class PetDatabaseAssignment2V2 {
         Scanner sc = new Scanner(System.in);
         PetDatabase petDB = new PetDatabase();
 
-        petDB.loadFromFile(); // Load existing pets from file at startup
+        petDB.loadFromFile(); // Load pets from file on startup
 
         int choice;
 
-        // Main loop for menu interaction
         do {
-            printMenu(); // Display menu options
+            printMenu();
 
-            choice = Integer.parseInt(sc.nextLine().trim()); 
+            try {
+                choice = Integer.parseInt(sc.nextLine().trim());
+            } catch (NumberFormatException e) {
+                choice = -1;
+            }
 
-            // Handle user choices
             switch (choice) {
                 case 1:
-                    petDB.viewAllPets(); // View all pets
+                    petDB.viewAllPets();
                     break;
                 case 2:
-                    petDB.addMorePets(); // Add new pets
+                    petDB.addMorePets();
                     break;
                 case 3:
-                    petDB.removePet(); // Remove a pet
+                    petDB.removePet();
                     break;
                 case 4:
-                    petDB.saveToFile(); // Save pets before exiting
+                    petDB.saveToFile();
                     System.out.println("Goodbye!");
                     break;
                 default:
-                    System.out.println("Invalid choice."); // Handles out-of-range choices
+                    System.out.println("Invalid choice.");
             }
-        } while (choice != 4); // Repeat until user exits
+        } while (choice != 4);
     }
 
-    // Method to display menu options
     public static void printMenu() {
         System.out.println("What would you like to do?");
         System.out.println("1) View all pets");
@@ -54,25 +54,19 @@ public class PetDatabaseAssignment2V2 {
     }
 }
 
-// Class representing a Pet object with name and age
 class Pet {
-    private static int count = 0;
-    private int id;
     private String name;
     private int age;
 
     public Pet(String name, int age) {
-        this.id = count++;
         this.name = name;
         this.age = age;
     }
 
-    public int getId() { return id; }
     public String getName() { return name; }
     public int getAge() { return age; }
 }
 
-// Class to manage the pet database and perform all actions
 class PetDatabase {
     private ArrayList<Pet> pets = new ArrayList<>();
     private static final String FILE_NAME = "PetData.txt";
@@ -88,8 +82,7 @@ class PetDatabase {
                     pets.add(new Pet(name, age));
                 }
             }
-        } catch (IOException ignored) {
-        }
+        } catch (IOException ignored) {}
     }
 
     public void saveToFile() {
@@ -118,16 +111,12 @@ class PetDatabase {
 
     public void addMorePets() {
         Scanner sc = new Scanner(System.in);
-        int count = 0;
 
         while (true) {
-            if (pets.size() >= 5) {
-                break;
-            }
+            if (pets.size() >= 5) break;
 
             System.out.print("add pet (name, age): ");
             String input = sc.nextLine().trim();
-
             if (input.equalsIgnoreCase("done")) break;
 
             String[] parts = input.split(" ");
@@ -135,14 +124,12 @@ class PetDatabase {
             int age = Integer.parseInt(parts[1]);
 
             pets.add(new Pet(name, age));
-            count++;
         }
-
-        System.out.println(count + " pets added.");
     }
 
     public void removePet() {
         viewAllPets();
+
         Scanner sc = new Scanner(System.in);
         System.out.print("Enter the pet ID to remove: ");
         int id = Integer.parseInt(sc.nextLine().trim());
